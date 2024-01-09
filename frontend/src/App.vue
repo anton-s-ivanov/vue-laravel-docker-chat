@@ -17,15 +17,12 @@
 <template>
     <div class="container">
 
-      <div v-if="true">
-        <NavMenuTop />
-      </div>
-      
+      <NavMenuTop />
+  
       <div class="page-content-wrapper">
         <RouterView />
       </div>
-      
-      
+            
     </div>
 </template>
 

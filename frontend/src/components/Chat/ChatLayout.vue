@@ -184,7 +184,6 @@
         width: 700px;
         min-height: 100%;
         max-height: 75vh;
-        background-color: #eeeeee;
         display: flex;
         flex-direction: column;
         overflow-y: auto;
@@ -200,6 +199,7 @@
 
     .chat-message-item {
         border: 1px solid grey;
+        background-color: #eeeeee;
         margin-bottom: 10px;
         padding: 10px;
         max-width: 75%;

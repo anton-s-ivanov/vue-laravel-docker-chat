@@ -21,7 +21,7 @@
 <style>
     .top-nav-menu {
         width: 100%;
-        background-color: rgb(215, 208, 222);
+        background-color: rgb(234 234 234);
         padding: 10px 0;   
         border-radius: 5px;     
     }

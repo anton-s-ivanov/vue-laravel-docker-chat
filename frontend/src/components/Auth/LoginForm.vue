@@ -12,7 +12,7 @@
 
     fetch(import.meta.env.VITE_BACKEND_DOMAIN + '/random-user-credentials')
         .then(res => res.json())
-        .then(res => credentials.value = res)
+        .then(res => credentials.value = res)    
  
     const submit = async () => {
         let result = await useRequestStore().postRequest('/login', credentials.value)
