@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\Auth\UserController;
 use App\Notifications\Chat\NewChatMessageRecieved;
 use Illuminate\Support\Facades\Route;
 
@@ -14,11 +15,6 @@ use Illuminate\Support\Facades\Route;
 |
 */
 
-Route::get('/', function () {
-    return view('welcome');
-});
-
-// Route::get('/notification', function () {
-//     return (new  NewChatMessageRecieved(1))
-//                 ->toMail();
+// Route::get('/', function () {
+//     return view('welcome');
 // });

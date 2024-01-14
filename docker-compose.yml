@@ -1,38 +1,46 @@
 version: '3'
 
 services:
+
   frontend:
     build:
       context: ./frontend
     ports:
-      - "8080:80"  
-    networks:
-      - my_network
+      - "8080:80"
 
   backend:
     build:
       context: ./backend
     ports:
       - "8000:8000" 
+    env_file:
+      ./backend/.env
     depends_on:
-      - postgres
-    networks:
-      - my_network
+      - db
+    command: sh -c "sleep 10 && php /var/www/html/artisan migrate --seed && php artisan serve --host=0.0.0.0 --port=8000"
 
-  postgres:
-    image: postgres:latest
+  db:
+    image: postgres:14.10
     environment:
-      POSTGRES_DB: chat_expobank
+      POSTGRES_DB: chat
       POSTGRES_USER: postgres
       POSTGRES_PASSWORD: postgres
     ports:
-      - "5432:5432" 
-      # - "5433:5432" 
-      
-      
-    networks:
-      - my_network
-
-networks:
-  my_network:
-    driver: bridge
+      - "5432:5432"    
+   
+  init-db:
+    image: postgres:14.10
+    depends_on:
+      - db
+    environment:
+      POSTGRES_DB: chat
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      PGPASSWORD: postgres
+    command: >
+      sh -c '
+        echo "Waiting for postgres to be ready..." &&
+        while ! pg_isready -h db -p 5432 > /dev/null 2> /dev/null; do sleep 1; done &&
+        echo "Postgres is ready! Initializing database..." &&
+        psql -h db -U postgres -d chat -c "CREATE DATABASE IF NOT EXISTS chat;"
+      '

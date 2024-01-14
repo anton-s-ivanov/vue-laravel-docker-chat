@@ -1,6 +1,15 @@
-# vue-laravel-docker-chat
+## Приложение для обмена сообщениями между пользователями
 
-* SPA + RestApi
-* Приложение для обмена сообщениями между пользователями
-* Vue 3 (composition Api) + Pinia + Vue-Router + Laravel
+# SPA + REST API
+* Vue 3 (composition Api) 
+* Vue-Router
+* Pinia
+* Laravel
 * Sanctum
+
+# Запуск
+* docker compose up
+* подождать после запуска контейнеров около 10 секунд - время на создание БД, миграций и сидеров
+* http://localhost:8080
+
+
