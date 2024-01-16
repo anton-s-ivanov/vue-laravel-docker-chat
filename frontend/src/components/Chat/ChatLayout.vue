@@ -124,6 +124,8 @@
         />
 
         <div v-show="!chatMessages.length" class="emty-chat-messages-info">Выберите собеседника</div>
+
+        <!-- <div v-show="chatMessages.length" style="font-size: 30px; padding: 10px; color: red"> {{ chatMessagesQty }}</div> -->
         
         <div v-show="chatMessages.length" class="messages-wrapper">
             <div 
