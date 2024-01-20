@@ -28,19 +28,3 @@ services:
     ports:
       - "5432:5432"    
    
-  # init-db:
-  #   image: postgres:14.10
-  #   depends_on:
-  #     - db
-  #   environment:
-  #     POSTGRES_DB: chat
-  #     POSTGRES_USER: postgres
-  #     POSTGRES_PASSWORD: postgres
-  #     PGPASSWORD: postgres
-  #   command: >
-  #     sh -c '
-  #       echo "Waiting for postgres to be ready..." &&
-  #       while ! pg_isready -h db -p 5432 > /dev/null 2> /dev/null; do sleep 1; done &&
-  #       echo "Postgres is ready! Initializing database..." &&
-  #       psql -h db -U postgres -d chat -c "CREATE DATABASE IF NOT EXISTS chat;"
-  #     '

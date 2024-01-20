@@ -95,16 +95,21 @@
     }
 
     const handleScrollMessages = () => {
-
-        const triggerElement = document.getElementById('triggerQueryMessage')
+        const topMessage = document.getElementById('topMessage')
         
+        if(topMessage.getBoundingClientRect().top > 0) {
+            messagesAria.scroll(0, 1)
+        }
+        
+        const triggerElement = document.getElementById('triggerQueryMessage')
+
         if(!triggerElement) {
             return
         }
 
         if(triggerElement.getBoundingClientRect().top > 0) {
-            triggerElement.id=""
             chatMessagesQty.value += 50
+            triggerElement.id = ""
         }
     }
 
@@ -141,6 +146,7 @@
                         @dblclick="editMessage(chatMessage)"
                     >
                         <div v-if="index===20" id="triggerQueryMessage"></div>
+                        <div v-if="index===0" id="topMessage"></div>
                         <div
                             class="chat-message-text"
                             v-html="getHtml(chatMessage.message)"
