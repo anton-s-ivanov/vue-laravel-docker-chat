@@ -23,17 +23,33 @@
             return
         }
 
-        let result = await useRequestStore().postRequest('/save-message', 
+        if(props.editingMessageId) {
+            await updateMessage()
+        } else {
+            await storeMessage()
+        }
+
+        messageTextRef.value = ''
+        emit('resetTextEditor')
+        emit('getChatMessages', props.choosedChat, true)
+    }
+
+    const updateMessage = async () => {
+        let result = await useRequestStore().postRequest('/update-message', 
         {
-            chatId: props.choosedChat,
             message: messageTextRef.value,
             editingMessageId: props.editingMessageId
         })
+        return result
+    }
 
-        messageTextRef.value = ''
-
-        emit('resetTextEditor')
-        emit('getChatMessages', props.choosedChat, true)
+    const storeMessage = async () => {
+        let result = await useRequestStore().postRequest('/store-message', 
+        {
+            message: messageTextRef.value,
+            chatId: props.choosedChat,
+        })
+        return result
     }
 
 </script>

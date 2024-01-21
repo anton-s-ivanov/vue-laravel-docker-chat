@@ -1,5 +1,5 @@
 <script setup>
-    import { ref } from 'vue';
+    import { onMounted, ref } from 'vue';
     import { useUserStore } from '@/stores/user';
     import { useRequestStore } from '@/stores/request';
     import router from '@/router';
@@ -7,13 +7,16 @@
 
     document.title = 'Вход в приложение' 
 
+    onMounted (() => setRandomUserCredentials())
+
     const credentials = ref({})
     const errors = ref([])
 
-    fetch(import.meta.env.VITE_BACKEND_DOMAIN + '/random-user-credentials')
-        .then(res => res.json())
-        .then(res => credentials.value = res)    
- 
+    const setRandomUserCredentials = async () => {
+        let result = await useRequestStore().getRequest('/random-user-credentials')
+        credentials.value = result
+    }
+
     const submit = async () => {
         let result = await useRequestStore().postRequest('/login', credentials.value)
         handleSubmitResult(result)
