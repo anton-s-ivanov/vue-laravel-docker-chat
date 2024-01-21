@@ -32,11 +32,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::table('chat_messages', function (Blueprint $table) {
-            $table->dropForeign(['sender_id']);
-            $table->dropForeign(['recipient_id']);
-        });
-
         Schema::dropIfExists('chat_messages');
     }
 };

@@ -14,6 +14,7 @@ Route::middleware('auth:sanctum')->group(function() {
     Route::get('/user-profile', [UserController::class, 'getUserProfile']);
     Route::get('/user-chats', [ChatMessageController::class, 'getUserChats']);
     Route::get('/chat-messages/{chatMemberId}', [ChatMessageController::class, 'getChatMessages']);
-    Route::post('/save-message', [ChatMessageController::class, 'saveMessage']);
+    Route::post('/store-message', [ChatMessageController::class, 'storeMessage']);
+    Route::post('/update-message', [ChatMessageController::class, 'updateMessage']);
 });
 

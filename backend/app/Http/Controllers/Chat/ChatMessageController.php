@@ -3,6 +3,9 @@
 namespace App\Http\Controllers\Chat;
 
 use App\Http\Controllers\Controller;
+use App\Http\Requests\GetChatMessagesRequest;
+use App\Http\Requests\StoreMessageRequest;
+use App\Http\Requests\UpdateMessageRequest;
 use App\Models\Chat\ChatMessage;
 use App\Models\User;
 use App\Notifications\Chat\NewChatMessageRecieved;
@@ -11,18 +14,14 @@ use Illuminate\Support\Facades\Auth;
 
 class ChatMessageController extends Controller
 {
-    public function getUserChats(Request $request)
+    public function getUserChats()
     {
-        return User::where('id', '<>', Auth::id())->select(['id', 'name'])->get();
+        return User::where('id', '<>', Auth::id())
+            ->select(['id', 'name'])->get();
     }
 
-    public function getChatMessages(Request $request)
+    public function getChatMessages(GetChatMessagesRequest $request)
     {
-        $request->validate([
-            'chatMemberId' => 'numeric',
-            'take' => 'numeric'
-        ]);
-
         return ChatMessage::query()
             ->where([['sender_id', Auth::id()], ['recipient_id', $request->chatMemberId]])
             ->orWhere([['recipient_id', Auth::id()], ['sender_id', $request->chatMemberId]])
@@ -32,24 +31,21 @@ class ChatMessageController extends Controller
         ;
     }
 
-    public function saveMessage(Request $request)
+    public function storeMessage(StoreMessageRequest $request)
     {
-        $request->validate([
-            'message' => 'required',
-            'editingMessageId' => 'numeric|nullable',
-            'chatId' => 'numeric|nullable',
-        ]);
+        $chatMessage = new ChatMessage();
+        $chatMessage->sender_id = Auth::id();
+        $chatMessage->recipient_id = $request->chatId;
+        // VS-Code подсвечивает ошибку при Auth::user()->notify. поэтому User::find(Auth::id())->notify
+        User::find(Auth::id())->notify(new NewChatMessageRecieved($request->chatId));
+        $chatMessage->message = $request->message;
+        
+        return response($chatMessage->save());
+    }
 
-        if($request->editingMessageId) {
-            $chatMessage = ChatMessage::findOrFail($request->editingMessageId);
-        } 
-        else {
-            $chatMessage = new ChatMessage();
-            $chatMessage->sender_id = Auth::id();
-            $chatMessage->recipient_id = $request->chatId;
-            User::find(Auth::id())->notify(new NewChatMessageRecieved($request->chatId));
-        }
-
+    public function updateMessage(UpdateMessageRequest $request)
+    {
+        $chatMessage = ChatMessage::findOrFail($request->editingMessageId);
         $chatMessage->message = $request->message;
         
         return response($chatMessage->save());

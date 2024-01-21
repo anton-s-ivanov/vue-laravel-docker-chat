@@ -9,9 +9,10 @@ use Illuminate\Support\Facades\Auth;
 
 class UserController extends Controller
 {
-    public function getUserProfile(Request $request)
+    public function getUserProfile()
     {
-        return User::findOrFail(Auth::id())->only(['id', 'name', 'email']);
+        return User::findOrFail(Auth::id())
+            ->only(['id', 'name', 'email']);
     }
 
     public function getRandomUserCredentials()
