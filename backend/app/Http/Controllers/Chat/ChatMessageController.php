@@ -22,13 +22,15 @@ class ChatMessageController extends Controller
 
     public function getChatMessages(GetChatMessagesRequest $request)
     {
-        return ChatMessage::query()
+        $chatMessages = ChatMessage::query()
             ->where([['sender_id', Auth::id()], ['recipient_id', $request->chatMemberId]])
             ->orWhere([['recipient_id', Auth::id()], ['sender_id', $request->chatMemberId]])
             ->orderByDesc('id')
             ->take($request->take)
             ->get()
-        ;
+            ->toArray();
+
+        return response(array_reverse($chatMessages));
     }
 
     public function storeMessage(StoreMessageRequest $request)

@@ -2,16 +2,21 @@
 
 namespace App\Http\Requests;
 
+use App\Models\Chat\ChatMessage;
 use Illuminate\Foundation\Http\FormRequest;
+use Illuminate\Support\Facades\Auth;
 
 class UpdateMessageRequest extends FormRequest
 {
     /**
      * Determine if the user is authorized to make this request.
      */
-    public function authorize(): bool
+    public function authorize(FormRequest $formRequest): bool
     {
+        if (ChatMessage::findOrFail($formRequest->editingMessageId)->sender_id === Auth::id())
         return true;
+
+        return false;
     }
 
     /**

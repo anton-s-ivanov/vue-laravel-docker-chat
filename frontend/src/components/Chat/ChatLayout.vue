@@ -59,7 +59,7 @@
         }
 
         const response = await useRequestStore().getRequest('/chat-messages/' + chatId + '?take=' + chatMessagesQty.value)
-        chatMessages.value = response.sort((a, b) => a.id - b.id)
+        chatMessages.value = response
         
         if(needScrollMessagesDown) {
             scrollMessages()

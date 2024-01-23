@@ -43,7 +43,7 @@ class ChatMessageControllerTest extends TestCase
             $responseArrIds[] = $arr['id'];
         }
 
-        $this->assertEquals(User::all()->count() - 1, count($response->decodeResponseJson()));
+        $this->assertEquals(User::count() - 1, count($response->decodeResponseJson()));
         $this->assertEquals(false, in_array(Auth::id(), $responseArrIds));
 
         $this->assertEquals(true, isset($responseArr[0]['id']));
