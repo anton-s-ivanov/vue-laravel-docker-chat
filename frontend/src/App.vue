@@ -4,23 +4,29 @@
   import { useUserStore } from '@/stores/user';
   import router from './router';
 
+  router.beforeEach(async (to, from, next) => {
+    if(!useUserStore().isAuth && to.name != 'login') {
+      const tryRestoreAuth = await useUserStore().tryRestoreAuth()
+      if(!tryRestoreAuth?.value) {
+        next({name: 'login'})
+      }
+    } 
+    next()
+  })
 
-  if(localStorage.getItem('apiToken') && !useUserStore().isAuth) {
-    useUserStore().isAuth = true
-  }
-
-  if(!localStorage.getItem('apiToken') && location.pathname != '/login') {
-    router.push('/login')
-  }
 </script>
 
 <template>
     <div class="container">
 
-      <NavMenuTop />
+      <nav-menu-top />
   
       <div class="page-content-wrapper">
-        <RouterView />
+        <router-view v-slot=" {Component}">
+          <transition name="fade">
+            <component :is="Component" />
+          </transition>
+        </router-view>
       </div>
             
     </div>

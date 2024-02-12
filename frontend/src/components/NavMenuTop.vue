@@ -8,17 +8,17 @@
     <nav class="top-nav-menu">
         <div class="router-links">
             <div :class="{ hidden : !useUserStore().isAuth }">
-                <RouterLink to="/">Чаты</RouterLink>
-                <RouterLink to="/profile">Профиль</RouterLink>
+                <RouterLink :to="{name: 'main'}">Чаты</RouterLink>
+                <RouterLink :to="{name: 'profile'}">Профиль</RouterLink>
             </div>
             <div :class="{ hidden : useUserStore().isAuth }">
-                <RouterLink to="/login">Логин</RouterLink>
+                <RouterLink :to="{name: 'login'}">Логин</RouterLink>
             </div>
         </div>
       </nav>   
 </template>
 
-<style>
+<style scoped>
     .top-nav-menu {
         width: 100%;
         background-color: rgb(234 234 234);

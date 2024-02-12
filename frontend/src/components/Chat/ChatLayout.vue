@@ -5,19 +5,27 @@
     import router from '@/router';
     import TextEditor from './TextEditor.vue'
     import ChatsList from './ChatsList.vue';
+    import { onBeforeRouteLeave } from 'vue-router';
 
     document.title = 'Чаты'
-
+    
     if(!useUserStore().userId) {
         useUserStore().getUserData()
     }
 
-    const userChats = ref({})
+    const userChats = ref([])
     const choosedChat = ref(null)
-    const chatMessages = ref({})
-    const chatMessagesQty = ref(50)
+    const chatMessages = ref([])
+    const chatMessagesTotalCount = ref(50)
     const messageText = ref('')
     const editingMessageId = ref(null)
+    let chatUpdateinterval = null
+    const messagesContainerRef = ref()
+
+    onBeforeRouteLeave((to, from, next)=>{
+        clearInterval(chatUpdateinterval)
+        next()
+    })
     
     const getUserChats = async () => {
         userChats.value = await useRequestStore().getRequest('/user-chats')
@@ -25,40 +33,37 @@
 
     onMounted(() => {
         getUserChats()
-
-        if(location.search.includes('chatId=')) {
-            const chatId = Number(location.search.split('chatId=')[1])
+        
+        if(router.currentRoute.value.query.chatId) {
+            const chatId = Number(router.currentRoute.value.query.chatId)
             choosedChat.value = chatId
             chatChoosed(chatId)
         }
-       
     })
-
-    let  chatUpdateinterval = null;
 
     const chatChoosed = (chatId) => {
         clearInterval(chatUpdateinterval)
+        chatMessages.value = []
 
-        router.push('/?chatId=' + chatId)
-        
+        router.push({name: 'main', query: {chatId: chatId}})        
         choosedChat.value = chatId
         getChatMessages(chatId, true)
 
         chatUpdateinterval = setInterval(() => {
-            if(!document.getElementById('messagesContainer')) {
-                clearInterval(chatUpdateinterval)
-            }
+            // if(!document.getElementById('messagesContainer')) {
+            //     clearInterval(chatUpdateinterval)
+            // }
             getChatMessages(chatId)
         }, 5000)
     }
 
     const getChatMessages = async (chatId, needScrollMessagesDown = false) => {
         
-        if(!document.getElementById('messagesContainer')) {
-            return
-        }
+        // if(!document.getElementById('messagesContainer')) {
+        //     return
+        // }
 
-        const response = await useRequestStore().getRequest('/chat-messages/' + chatId + '?take=' + chatMessagesQty.value)
+        const response = await useRequestStore().getRequest('/chat-messages/' + chatId + '?take=' + chatMessagesTotalCount.value)
         chatMessages.value = response
         
         if(needScrollMessagesDown) {
@@ -68,11 +73,16 @@
 
     const scrollMessages = () => {
         const interval = setInterval(() => {
-            const scrollValue = window.getComputedStyle(messagesContainer, null).height.split('px')[0]
-            if(scrollValue) {
-                clearInterval(interval)
-                messagesAria.scroll(0, scrollValue)
-            }
+            // messagesContainer = document.getElementById('messagesContainer')
+            // if(messagesContainerRef.value) {
+                // const scrollValue = window.getComputedStyle(messagesContainer, null)?.height.split('px')[0]
+                const scrollValue = window.getComputedStyle(messagesContainerRef.value, null)?.height.split('px')[0]
+                if(scrollValue) {
+                    clearInterval(interval)
+                    messagesAria.scroll(0, scrollValue)
+                }
+            // }
+            
         })
     }
 
@@ -97,7 +107,7 @@
     const handleScrollMessages = () => {
         const topMessage = document.getElementById('topMessage')
         
-        if(topMessage.getBoundingClientRect().top > 0) {
+        if(topMessage?.getBoundingClientRect()?.top > 0) {
             messagesAria.scroll(0, 1)
         }
         
@@ -107,8 +117,8 @@
             return
         }
 
-        if(triggerElement.getBoundingClientRect().top > 0) {
-            chatMessagesQty.value += 50
+        if(triggerElement.getBoundingClientRect()?.top > 0) {
+            chatMessagesTotalCount.value += 50
             triggerElement.id = ""
         }
     }
@@ -128,47 +138,46 @@
             @chatChoosed="chatChoosed"
         />
 
-        <div v-show="!chatMessages.length" class="emty-chat-messages-info">Выберите собеседника</div>
-
-        <!-- <div v-show="chatMessages.length" style="font-size: 30px; padding: 10px; color: red"> {{ chatMessagesQty }}</div> -->
-        
-        <div v-show="chatMessages.length" class="messages-wrapper">
-            <div 
-                class="messages-aria" 
-                id="messagesAria"
-                @scroll="handleScrollMessages()"
-            >
-                <div  class="messages-container" id="messagesContainer">
-                    <div
-                        v-for="(chatMessage, index) in chatMessages" :key="chatMessage.id"
-                        class="chat-message-item"
-                        :class="{'current-user-is-message-sender' : (chatMessage.sender_id === useUserStore().userId)}"
-                        @dblclick="editMessage(chatMessage)"
-                    >
-                        <div v-if="index===20" id="triggerQueryMessage"></div>
-                        <div v-if="index===0" id="topMessage"></div>
+        <div v-show="!choosedChat" class="emty-chat-messages-info">Выберите собеседника</div>
+    
+        <Transition name="fade">
+            <div v-show="chatMessages.length" class="messages-wrapper">
+                <div 
+                    class="messages-aria" 
+                    id="messagesAria"
+                    @scroll="handleScrollMessages()"
+                >
+                    <div class="messages-container" id="messagesContainer" ref="messagesContainerRef">
                         <div
-                            class="chat-message-text"
-                            v-html="getHtml(chatMessage.message)"
-                        ></div>
-                    
-                        <div 
-                            class="chat-message-date-time"
-                        >{{ new Date(chatMessage.updated_at).toLocaleString() }}</div>
+                            v-for="(chatMessage, index) in chatMessages" :key="chatMessage.id"
+                            class="chat-message-item"
+                            :class="{'current-user-is-message-sender' : (chatMessage.sender_id === useUserStore().userId)}"
+                            @dblclick="editMessage(chatMessage)"
+                        >
+                            <div v-if="index===20" id="triggerQueryMessage"></div>
+                            <div v-if="index===0" id="topMessage"></div>
+                            <div
+                                class="chat-message-text"
+                                v-html="getHtml(chatMessage.message)"
+                            ></div>
+                        
+                            <div 
+                                class="chat-message-date-time"
+                            >{{ new Date(chatMessage.updated_at).toLocaleString() }}</div>
+                        </div>
                     </div>
                 </div>
-            </div>
-            
-            <TextEditor 
-                :editingMessageId="editingMessageId"
-                :choosedChat="choosedChat"
-                :messageText="messageText"
-                @resetTextEditor="resetTextEditor"
-                @getChatMessages="getChatMessages"
-            />
-            
-        </div>
-        
+                
+                <TextEditor 
+                    :editingMessageId="editingMessageId"
+                    :choosedChat="choosedChat"
+                    :messageText="messageText"
+                    @resetTextEditor="resetTextEditor"
+                    @getChatMessages="getChatMessages"
+                />
+                
+            </div>     
+        </Transition>   
     </div>
 </template>
 

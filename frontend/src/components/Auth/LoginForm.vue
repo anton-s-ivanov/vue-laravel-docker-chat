@@ -32,7 +32,7 @@
         localStorage.setItem('apiToken', submitResult.token)
         useUserStore().isAuth = true
         useUserStore().getUserData()
-        router.push('/')
+        router.push({name: 'main'})
     }
 
 </script>

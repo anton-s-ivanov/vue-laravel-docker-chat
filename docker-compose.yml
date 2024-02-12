@@ -17,7 +17,7 @@ services:
       ./backend/.env
     depends_on:
       - db
-    command: sh -c 'sleep 10 && php /var/www/html/artisan migrate --seed && php-fpm --daemonize && nginx -g "daemon off;" && php artisan queue:work'
+    command: sh -c 'sleep 5 && php artisan migrate:refresh --seed && php-fpm --daemonize && nginx -g "daemon off;" && php artisan queue:work'
 
   db:
     image: postgres:14.10
